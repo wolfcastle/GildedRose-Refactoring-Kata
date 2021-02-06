@@ -74,6 +74,12 @@ class GildedRoseTest {
         }
 
         @Test
+        void increasesQualityTwiceAsFastAfterSellDate() {
+            advanceNDays( 3 );
+            assertEquals( 4, item.quality );
+        }
+
+        @Test
         void increasesOnlyUntilMax() {
             advanceNDays( 55 );
             assertEquals( 50, item.quality );
@@ -94,6 +100,14 @@ class GildedRoseTest {
         createStore();
         advanceNDays( 10 );
         assertEquals( -1, item.sellIn );
+    }
+
+    @Test
+    void conjuredDecreasesQualityTwoPerDay() {
+        item = new Item("Conjured Battle Axe", 10, 20);
+        createStore();
+        advanceNDays( 1 );
+        assertEquals( 18, item.quality );
     }
 
     @Nested
