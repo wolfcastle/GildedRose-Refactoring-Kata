@@ -3,63 +3,85 @@ package com.gildedrose;
 class GildedRose {
     private static final String PASSES = "Backstage passes to a TAFKAL80ETC concert";
     private static final String BRIE = "Aged Brie";
-    public static final String HAND_OF_RAGNAROS = "Sulfuras, Hand of Ragnaros";
+    private static final String SULFURAS = "Sulfuras, Hand of Ragnaros";
+    private static final String CONJURED = "Conjured Battle Axe";
+    private static final int MAX_QUALITY = 50;
+    private static final int MIN_SELLIN = 0;
+    private static final int MIN_QUALITY = 0;
+
     Item[] items;
 
-    public GildedRose(Item[] items) {
+    public GildedRose( Item[] items ) {
         this.items = items;
     }
 
     public void updateQuality() {
-        for (int i = 0; i < items.length; i++) {
-            if (!items[i].name.equals( BRIE )
-                    && !items[i].name.equals( PASSES )) {
-                if (items[i].quality > 0) {
-                    if (!items[i].name.equals( HAND_OF_RAGNAROS )) {
-                        items[i].quality = items[i].quality - 1;
-                    }
-                }
-            } else {
-                if (items[i].quality < 50) {
-                    items[i].quality = items[i].quality + 1;
-
-                    if (items[i].name.equals( PASSES )) {
-                        if (items[i].sellIn < 11) {
-                            if (items[i].quality < 50) {
-                                items[i].quality = items[i].quality + 1;
-                            }
-                        }
-
-                        if (items[i].sellIn < 6) {
-                            if (items[i].quality < 50) {
-                                items[i].quality = items[i].quality + 1;
-                            }
-                        }
-                    }
-                }
-            }
-
-            if (!items[i].name.equals( HAND_OF_RAGNAROS )) {
-                items[i].sellIn = items[i].sellIn - 1;
-            }
-
-            if (items[i].sellIn < 0) {
-                if (!items[i].name.equals( BRIE )) {
-                    if (!items[i].name.equals( PASSES )) {
-                        if (items[i].quality > 0) {
-                            if (!items[i].name.equals( HAND_OF_RAGNAROS )) {
-                                items[i].quality = items[i].quality - 1;
-                            }
-                        }
-                    } else {
-                        items[i].quality = items[i].quality - items[i].quality;
-                    }
-                } else {
-                    if (items[i].quality < 50) {
-                        items[i].quality = items[i].quality + 1;
-                    }
-                }
+        for ( Item item : items ) {
+            switch ( item.name ) {
+                case SULFURAS:
+                    break;
+                case BRIE:
+                    adjustBrie( item );
+                    break;
+                case PASSES:
+                    adjustPasses( item );
+                    break;
+                case CONJURED:
+                    adjustConjured( item );
+                    break;
+                default:
+                    adjustDefaultItems( item );
+                    break;
             }
         }
+    }
+
+    private void adjustConjured( Item item ) {
+        decreaseQuality( item );
+        adjustDefaultItems( item );
+    }
+
+    private void adjustDefaultItems( Item item ) {
+        decreaseSellIn( item );
+        decreaseQuality( item );
+        if ( item.sellIn < MIN_SELLIN ) {
+            decreaseQuality( item );
+        }
+    }
+
+    private void adjustPasses( Item item ) {
+        decreaseSellIn( item );
+        increaseQuality( item );
+        if ( item.sellIn < 10 ) {
+            increaseQuality( item );
+        }
+
+        if ( item.sellIn < 5 ) {
+            increaseQuality( item );
+        }
+
+        if ( item.sellIn < MIN_SELLIN ) {
+            item.quality = MIN_QUALITY;
+        }
+    }
+
+    private void adjustBrie( Item item ) {
+        decreaseSellIn( item );
+        increaseQuality( item );
+        if ( item.sellIn < MIN_SELLIN ) {
+            increaseQuality( item );
+        }
+    }
+
+    private void decreaseSellIn( Item item ) {
+        --item.sellIn;
+    }
+
+    private void decreaseQuality( Item item ) {
+        item.quality = Math.max( MIN_QUALITY, item.quality - 1 );
+    }
+
+    private void increaseQuality( Item item ) {
+        item.quality = Math.min( MAX_QUALITY, item.quality + 1 );
     }
 }
